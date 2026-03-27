@@ -40,7 +40,7 @@ const extractProfileData = async (userInput) => {
         { role: "user", content: userInput },
       ],
       // Llama 3 70B use kar rahe hain for better reasoning and strict JSON adherence
-      model: "llama3-70b-8192",
+      model: "llama-3.3-70b-versatile",
       temperature: 0.2, // Low temp so it doesn't get overly creative and break the JSON
       // YEH SABSE IMPORTANT HAI BHAI:
       response_format: { type: "json_object" },

@@ -1,24 +1,30 @@
 // backend/src/index.js
-const connectDB = require("./config/db");
-connectDB();
+// 1. SABSE PEHLE ENV LOAD KARO!
+require("dotenv").config();
 
 const express = require("express");
 const cors = require("cors");
-require("dotenv").config();
+const connectDB = require("./config/db");
 
-const { extractProfileData } = require("./services/llmService");
+// 2. AB DATABASE CONNECT KARO (Kyunki ab MONGO_URI mil jayega)
+connectDB();
 
 const app = express();
+
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Test route to check if AI is working
-app.post("/api/ai/parse", async (req, res) => {
-  const { userInput } = req.body;
+// 3. APNE ASLI ROUTES YAHAN LAGAO
+// Jo route frontend use karega dashboard aur profile banane ke liye
+app.use("/api/profile", require("./routes/profileRoutes"));
 
-  if (!userInput) {
+// (Optional) Tera test route rakhna hai toh rakh le
+app.post("/api/ai/parse", async (req, res) => {
+  const { extractProfileData } = require("./services/llmService");
+  const { userInput } = req.body;
+  if (!userInput)
     return res.status(400).json({ error: "Bhai, input toh bhej!" });
-  }
 
   try {
     const structuredData = await extractProfileData(userInput);
@@ -28,7 +34,8 @@ app.post("/api/ai/parse", async (req, res) => {
   }
 });
 
+// 4. SERVER START
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.lang(`Server is running in high gear on port ${PORT} 🔥`);
+  console.log(`Server is running in high gear on port ${PORT} 🔥`);
 });
