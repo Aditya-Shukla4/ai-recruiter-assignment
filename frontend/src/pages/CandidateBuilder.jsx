@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { generateProfile } from "../services/api";
 import { Loader2, Send } from "lucide-react";
+import ProfilePreviewCard from "../components/ProfilePreviewCard";
 
 const CandidateBuilder = () => {
   const [inputText, setInputText] = useState("");
@@ -64,14 +65,13 @@ const CandidateBuilder = () => {
       </div>
 
       {/* Raw Data Display (Iska sundar UI apan baad mein banayenge) */}
+      {/* Elegant UI Display */}
       {profileData && (
-        <div className="mt-8 bg-slate-800 p-6 rounded-xl border border-green-500/30">
-          <h2 className="text-xl font-bold text-green-400 mb-4">
-            ✅ Profile Auto-Saved Successfully!
-          </h2>
-          <pre className="bg-slate-900 p-4 rounded-lg overflow-x-auto text-sm text-slate-300">
-            {JSON.stringify(profileData, null, 2)}
-          </pre>
+        <div className="mt-8">
+          <p className="text-green-400 font-bold mb-4 text-center">
+            ✅ Profile Auto-Saved & Synced!
+          </p>
+          <ProfilePreviewCard profileData={profileData} />
         </div>
       )}
     </div>
