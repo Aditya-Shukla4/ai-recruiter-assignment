@@ -2,11 +2,12 @@
 import React, { useEffect, useState } from "react";
 import { fetchAllProfiles } from "../services/api";
 import { motion } from "framer-motion";
-import { Loader2, Users, ExternalLink } from "lucide-react";
+import { Loader2, Users, ArrowUpRight, Search } from "lucide-react";
 
 const RecruiterDashboard = () => {
   const [profiles, setProfiles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const getProfiles = async () => {
@@ -24,70 +25,114 @@ const RecruiterDashboard = () => {
     getProfiles();
   }, []);
 
+  // Real-time Stealth Filter Logic
+  const filteredProfiles = profiles.filter((profile) => {
+    const query = searchQuery.toLowerCase();
+    const matchSkill = profile.skills?.some((skill) =>
+      skill.toLowerCase().includes(query),
+    );
+    const matchSummary = profile.summary?.toLowerCase().includes(query);
+    const matchEmail = profile.user?.email?.toLowerCase().includes(query);
+
+    return matchSkill || matchSummary || matchEmail;
+  });
+
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <Loader2 className="animate-spin text-blue-500 w-12 h-12" />
+      <div className="flex h-screen items-center justify-center bg-zinc-950">
+        <Loader2 className="animate-spin text-zinc-400 w-10 h-10" />
       </div>
     );
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-6 mt-8">
-      <div className="flex items-center gap-3 mb-8 border-b border-slate-700 pb-4">
-        <Users size={32} className="text-purple-400" />
-        <h1 className="text-3xl font-bold text-white">Recruiter Dashboard</h1>
+    // System font, pure dark zinc background
+    <div className="max-w-7xl mx-auto p-8 mt-4 font-sans text-zinc-100 selection:bg-emerald-500/30">
+      {/* Header section */}
+      <div className="flex items-center gap-4 mb-8">
+        <div className="bg-zinc-800/50 p-3 rounded-2xl shadow-sm">
+          <Users size={28} className="text-zinc-300" />
+        </div>
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-zinc-100">
+            Talent Pool
+          </h1>
+          <p className="text-zinc-500 text-sm mt-1">
+            Showing all AI-verified candidates.
+          </p>
+        </div>
       </div>
 
-      {profiles.length === 0 ? (
-        <p className="text-slate-400 text-center mt-20 text-lg">
-          Koi candidate nahi mila bhai. Pehle profile build karwao!
-        </p>
+      {/* The Premium Search Bar */}
+      <div className="mb-12 relative group">
+        <div className="absolute left-6 top-1/2 -translate-y-1/2 text-zinc-500 group-focus-within:text-emerald-500 transition-colors">
+          <Search size={20} />
+        </div>
+        <input
+          type="text"
+          placeholder="Search by React, Python, or email..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full bg-zinc-900 text-zinc-100 pl-14 pr-16 py-4 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all font-mono text-sm placeholder:text-zinc-600 shadow-lg shadow-zinc-950/50"
+        />
+        <div className="absolute right-6 top-1/2 -translate-y-1/2 flex items-center gap-2">
+          <span className="text-xs font-mono font-bold text-zinc-500 bg-zinc-800 px-2.5 py-1 rounded-md">
+            ⌘K
+          </span>
+        </div>
+      </div>
+
+      {filteredProfiles.length === 0 ? (
+        <div className="flex flex-col items-center justify-center mt-24">
+          <p className="text-zinc-500 text-lg">
+            Koi result nahi mila bhai. Try another keyword.
+          </p>
+        </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {profiles.map((profile, index) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {filteredProfiles.map((profile, index) => (
             <motion.div
               key={profile._id}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: index * 0.1 }}
-              className="bg-slate-800 p-6 rounded-xl border border-slate-700 hover:border-purple-500/50 transition-colors flex flex-col h-full shadow-lg"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05, duration: 0.4 }}
+              className="bg-zinc-900 hover:bg-zinc-800/80 p-8 rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col h-full group cursor-pointer"
             >
-              <div className="mb-4">
-                <span className="text-xs font-semibold bg-purple-500/20 text-purple-300 px-2 py-1 rounded">
-                  {profile.user?.email || "hire-me@anshumat.org"}
+              <div className="flex justify-between items-start mb-6">
+                <span className="text-xs font-mono font-medium bg-zinc-800 text-emerald-400 px-3 py-1.5 rounded-full">
+                  {profile.user?.email || "verified_candidate"}
                 </span>
+                <ArrowUpRight
+                  size={18}
+                  className="text-zinc-600 group-hover:text-zinc-300 transition-colors"
+                />
               </div>
 
-              <p className="text-slate-300 text-sm mb-4 line-clamp-3 flex-grow">
-                {profile.summary || "No summary available."}
+              <p className="text-zinc-400 text-sm leading-relaxed mb-8 line-clamp-3 flex-grow">
+                {profile.summary ||
+                  "No summary provided. System requires more data."}
               </p>
 
-              <div className="mb-4">
-                <h4 className="text-xs font-bold text-slate-500 mb-2 uppercase tracking-wider">
-                  Top Skills
+              <div className="mt-auto">
+                <h4 className="text-xs font-semibold text-zinc-600 mb-3 uppercase tracking-widest">
+                  Core Stack
                 </h4>
-                <div className="flex flex-wrap gap-1">
+                <div className="flex flex-wrap gap-2">
                   {profile.skills?.slice(0, 3).map((skill, i) => (
                     <span
                       key={i}
-                      className="bg-slate-700 text-slate-300 text-xs px-2 py-1 rounded"
+                      className="bg-zinc-800/50 text-zinc-300 text-xs px-3 py-1.5 rounded-lg font-mono"
                     >
                       {skill}
                     </span>
                   ))}
                   {profile.skills?.length > 3 && (
-                    <span className="text-xs text-slate-500 py-1">
-                      +{profile.skills.length - 3} more
+                    <span className="text-xs text-zinc-500 py-1.5 px-1 font-mono">
+                      +{profile.skills.length - 3}
                     </span>
                   )}
                 </div>
               </div>
-
-              <button className="w-full mt-auto flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white py-2 rounded transition-colors text-sm font-semibold">
-                <span>View Full Profile</span>
-                <ExternalLink size={14} />
-              </button>
             </motion.div>
           ))}
         </div>
