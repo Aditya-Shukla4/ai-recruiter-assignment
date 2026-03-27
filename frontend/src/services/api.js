@@ -3,7 +3,7 @@ import axios from "axios";
 
 // Backend ka address
 const API = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: "https://ai-recruiter-assignment.onrender.com",
 });
 
 // Candidate ke liye: Profile Generate + Save
